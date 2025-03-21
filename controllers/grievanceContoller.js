@@ -21,7 +21,7 @@ const GrievanceController = {
 
     getAll: async (req, res) => {
         try {
-            const grievances = await Grievance.getAll();
+            const grievances = await Grievance.getAll(); // Get all grievances from the model
             res.json(grievances);
         } catch (error) {
             console.error("Error getting all grievances:", error);
@@ -31,7 +31,7 @@ const GrievanceController = {
 
     getByCitizenId: async (req, res) => {
         try {
-            const citizenId = req.user.citizenId;
+            const citizenId = req.user.citizenId; // Get citizenId from the decoded token
             const grievances = await Grievance.getByCitizenId(citizenId);
             res.json(grievances);
         } catch (error) {
@@ -44,6 +44,7 @@ const GrievanceController = {
         try {
             const { grievanceId } = req.params;
             const grievance = await Grievance.getById(grievanceId);
+            console.log(grievance);
             if (!grievance) {
                 return res.status(404).json({ message: 'Grievance not found' });
             }
@@ -56,12 +57,24 @@ const GrievanceController = {
 
     update: async (req, res) => {
         try {
-            const { grievanceId } = req.params;
-            const updatedGrievance = await Grievance.update(grievanceId, req.body);
-            if (!updatedGrievance) {
-                return res.status(404).json({ message: 'Grievance not found' });
+            const grievanceId = req.params.grievanceId;
+            const citizenId = req.user.citizenId;
+            const { title, description } = req.body;
+
+            console.log("Grievance ID from request:", grievanceId);
+            console.log("Citizen ID from token:", citizenId);
+
+            const grievance = await Grievance.getById(grievanceId);
+
+            console.log("Grievance from database:", grievance);
+
+            if (!grievance || grievance.citizen_id !== citizenId) {
+                return res.status(403).json({ message: 'Forbidden: Grievance does not belong to you' });
             }
-            res.json({ message: 'Grievance updated successfully', grievance: updatedGrievance });
+
+            await Grievance.update(grievanceId, { title, description });
+
+            res.json({ message: 'Grievance updated successfully' });
         } catch (error) {
             console.error("Error updating grievance:", error);
             res.status(500).json({ message: 'Internal server error' });
@@ -70,17 +83,25 @@ const GrievanceController = {
 
     delete: async (req, res) => {
         try {
-            const { grievanceId } = req.params;
-            const deletedGrievance = await Grievance.delete(grievanceId);
-            if (!deletedGrievance) {
-                return res.status(404).json({ message: 'Grievance not found' });
+            const grievanceId = req.params.grievanceId;
+            const citizenId = req.user.citizenId;
+
+            const grievance = await Grievance.getById(grievanceId);
+            console.log("Grievance ID from request:", grievanceId);
+            console.log("Citizen ID from token:", citizenId);
+
+            if (!grievance || grievance.citizen_id !== citizenId) {
+                return res.status(403).json({ message: 'Forbidden: Grievance does not belong to you' });
             }
+
+            await Grievance.delete(grievanceId);
+
             res.json({ message: 'Grievance deleted successfully' });
         } catch (error) {
             console.error("Error deleting grievance:", error);
             res.status(500).json({ message: 'Internal server error' });
         }
-    }
+    },
 };
 
 module.exports = GrievanceController;

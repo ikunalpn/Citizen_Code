@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-
+const jwtSecret = require("../config/jwtSecret")
 const authMiddleware = (roles) => {
     return (req, res, next) => {
         const token = req.cookies.token;
@@ -9,7 +9,7 @@ const authMiddleware = (roles) => {
         }
 
         try {
-            const decoded = jwt.verify(token, "mysecret"); // Use your actual secret
+            const decoded = jwt.verify(token, jwtSecret.jwtSecret); // Use your actual secret
             req.user = decoded;
 
             if (roles && !roles.includes(req.user.role)) {

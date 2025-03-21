@@ -5,15 +5,15 @@ const authMiddleware = require('../middlewares/authMiddleware'); // Assuming thi
 
 // Citizen Routes
 router.post('/citizen/create', authMiddleware(['citizen']), GrievanceController.create);
-router.get('/citizen/all', authMiddleware, GrievanceController.getByCitizenId);
-router.get('/citizen/:grievanceId', authMiddleware, GrievanceController.getById);
-router.put('/citizen/:grievanceId', authMiddleware, GrievanceController.update);
-router.delete('/citizen/:grievanceId', authMiddleware, GrievanceController.delete);
+router.get('/citizen/all', authMiddleware(['citizen']), GrievanceController.getByCitizenId);
+router.get('/citizen/:grievanceId', authMiddleware(['citizen']), GrievanceController.getById);
+router.put('/citizen/:grievanceId', authMiddleware(['citizen']), GrievanceController.update);
+router.delete('/citizen/:grievanceId', authMiddleware(['citizen']), GrievanceController.delete);
 
 // Addresser Routes
-router.get('/addresser/all', authMiddleware, GrievanceController.getAll); // Get all grievances for admin
-router.get('/addresser/:grievanceId', authMiddleware, GrievanceController.getById);
-router.put('/addresser/:grievanceId', authMiddleware, GrievanceController.update); // For admin to update status
-router.delete('/addresser/:grievanceId', authMiddleware, GrievanceController.delete);
+router.get('/addresser/all', authMiddleware(['addresser']), GrievanceController.getAll); // Get all grievances for admin
+router.get('/addresser/:grievanceId', authMiddleware(['addresser']), GrievanceController.getById);
+router.put('/addresser/:grievanceId', authMiddleware(['addresser']), GrievanceController.update); // For admin to update status
+router.delete('/addresser/:grievanceId', authMiddleware(['addresser']), GrievanceController.delete);
 
 module.exports = router;

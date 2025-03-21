@@ -2,6 +2,7 @@ const Citizen = require('../models/citizenModel');
 const bcrypt = require('bcrypt');
 const { generateToken } = require('../utils/generateToken');
 const jwt = require("jsonwebtoken");
+const jwtSecret = require("../config/jwtSecret")
 const CitizenController = {
     // In citizenController.js
     register: async (req, res) => {
@@ -56,8 +57,7 @@ const CitizenController = {
                     citizenId: user.citizen_id, // Add citizenId
                     role: 'citizen' // Add role
                 },
-                "mysecret",
-                { expiresIn: '1h' } // Optional: Set expiration time
+                jwtSecret.jwtSecret
             );
             res.cookie("token", token);
             res.json({ token });

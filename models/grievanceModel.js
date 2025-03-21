@@ -12,23 +12,48 @@ const Grievance = {
             throw error;
         }
     },
-    getAll: (callback) => {
-        db.query('SELECT * FROM Grievance', callback);
+    getAll: async () => {
+        try {
+            const [rows] = await db.query('SELECT * FROM Grievance');
+            return rows;
+        } catch (error) {
+            console.error("Error getting all grievances:", error);
+            throw error;
+        }
     },
-    getById: (grievanceId, callback) => {
-        db.query('SELECT * FROM Grievance WHERE grievance_id = ?', [grievanceId], callback);
+    getById: async (grievanceId) => {
+        try {
+            const [rows] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ?', [grievanceId]);
+            return rows[0]; // Return the first row (grievance) or undefined
+        } catch (error) {
+            console.error("Error getting grievance by ID:", error);
+            throw error;
+        }
     },
-    update: (grievanceId, grievance, callback) => {
-        db.query('UPDATE Grievance SET title = ?, description = ?, status = ? WHERE grievance_id = ?',
-            [grievance.title, grievance.description, grievance.status, grievanceId],
-            callback
-        );
+    update: async (grievanceId, updatedGrievance) => {
+        try {
+            await db.query(`UPDATE Grievance SET ? WHERE grievance_id = ?`, [updatedGrievance, grievanceId]); // Replace grievance_id if your column name is different
+        } catch (error) {
+            console.error("Error updating grievance:", error);
+            throw error;
+        }
     },
-    delete: (grievanceId, callback) => {
-        db.query('DELETE FROM Grievance WHERE grievance_id = ?', [grievanceId], callback);
+    delete: async (grievanceId) => {
+        try {
+            await db.query(`DELETE FROM Grievance WHERE grievance_id = ?`, [grievanceId]); // Replace grievance_id with correct column name if needed
+        } catch (error) {
+            console.error("Error deleting grievance:", error);
+            throw error;
+        }
     },
-    getByCitizenId: (citizenId, callback) => {
-        db.query('SELECT * FROM Grievance WHERE citizen_id = ?', [citizenId], callback);
+    getByCitizenId: async (citizenId) => {
+        try {
+            const [rows] = await db.query('SELECT * FROM Grievance WHERE citizen_id = ?', [citizenId]);
+            return rows;
+        } catch (error) {
+            console.error("Error getting grievances by citizen ID:", error);
+            throw error;
+        }
     },
     //... other methods
 };

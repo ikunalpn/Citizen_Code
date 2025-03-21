@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/db');
 const bcrypt = require('bcrypt');
 const {generateToken} = require('../utils/generateToken');
-
+const jwtSecret = require("../config/jwtSecret")
 const AddresserController = {
     register: async (req, res) => {
         try {
@@ -50,7 +50,14 @@ const AddresserController = {
                 return res.status(401).json({ error: 'Incorrect password' });
             }
 
-            const token = generateToken({ addresserId: addresser.addresser_id, role: 'addresser' });
+            const token = jwt.sign(
+                {
+                    addresserId: addresser.addresser_id, // Add addresserId
+                    role: 'addresser' // Add role
+                },
+                jwtSecret.jwtSecret // Optional: Set expiration time
+            );
+            res.cookie("token", token);
             res.json({ token });
 
         } catch (error) {
