@@ -1,20 +1,40 @@
 const Grievance = require('../models/grievanceModel');
+const fs = require('fs');
+const path = require('path');
 
 const GrievanceController = {
     create: async (req, res) => {
         try {
-            console.log("Grievance create request received:", req.body);
             const { title, description } = req.body;
-            const citizen_id = req.user.citizenId; // Get citizen ID from req.user (middleware)
+            const citizenId = req.user.citizenId;
 
-            const grievanceId = await Grievance.create({ citizen_id, title, description });
-            console.log("Grievance created with ID:", grievanceId);
+            const grievanceId = await Grievance.create({
+                citizen_id: citizenId,
+                title,
+                description,
+                status: 'pending',
+            });
 
-            res.status(201).json({ message: 'Grievance created successfully', grievanceId: grievanceId });
-            console.log("Grievance response sent successfully");
+            if (req.files && req.files.length > 0) {
+                const attachments = req.files.map(file => {
+                    const newFilename = `${grievanceId}-${file.originalname}`;
+                    const newPath = path.join(__dirname, '../public/uploads', newFilename);
 
+                    fs.renameSync(file.path, newPath);
+
+                    return {
+                        grievance_id: grievanceId,
+                        file_name: file.originalname,
+                        file_path: `/uploads/${newFilename}`, // Store relative path
+                    };
+                });
+
+                await Grievance.addAttachments(attachments);
+            }
+
+            res.status(201).json({ message: 'Grievance created successfully' });
         } catch (error) {
-            console.error("Error during grievance creation:", error);
+            console.error("Error creating grievance:", error);
             res.status(500).json({ message: 'Internal server error' });
         }
     },

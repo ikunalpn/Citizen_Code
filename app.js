@@ -34,6 +34,9 @@ app.use(
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public'))); // For serving static files
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Routes
 app.use('/citizen', citizenRoutes);
 app.use('/grievance', grievanceRoutes);
@@ -51,6 +54,20 @@ async function testDbConnection() {
     }
 }
 testDbConnection();
+
+
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    console.log(`Username: ${username}, Password: ${password}`);
+
+    // Add your authentication logic here
+
+    res.send('Login successful!'); // Replace with actual logic
+});
 
 // Start the server
 app.listen(port, () => {

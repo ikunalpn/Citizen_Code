@@ -35,12 +35,15 @@ const Grievance = {
     getById: async () => {
         try {
             const [rows] = await db.query('SELECT *, status FROM Grievance');
-    
+
             for (const row of rows) {
                 const [comments] = await db.query('SELECT comment_text FROM Comments WHERE grievance_id = ?', [row.grievance_id]);
-                row.comments = comments.map(c => c.comment_text); // Store comments as an array
+                row.comments = comments.map(c => c.comment_text);
+
+                const [attachments] = await db.query('SELECT * FROM Attachments WHERE grievance_id = ?', [row.grievance_id]);
+                row.attachments = attachments;
             }
-    
+
             return rows;
         } catch (error) {
             console.error("Error getting all grievances:", error);
@@ -76,18 +79,23 @@ const Grievance = {
     getByCitizenId: async (citizenId) => {
         try {
             const [rows] = await db.query('SELECT *, status FROM Grievance WHERE citizen_id = ?', [citizenId]);
-    
+
             for (const row of rows) {
                 const [comments] = await db.query('SELECT comment_text FROM Comments WHERE grievance_id = ?', [row.grievance_id]);
-                row.comments = comments.map(c => c.comment_text); // Store comments as an array
+                row.comments = comments.map(c => c.comment_text);
+
+                const [attachments] = await db.query('SELECT * FROM Attachments WHERE grievance_id = ?', [row.grievance_id]);
+                row.attachments = attachments;
             }
-    
+
             return rows;
         } catch (error) {
             console.error("Error getting grievances by citizen ID:", error);
             throw error;
         }
     },
+
+    
 
     updateCommentAndStatus: async (grievanceId, comment, status) => {
         try {
@@ -98,6 +106,16 @@ const Grievance = {
 
         } catch (error) {
             console.error("Error updating grievance comment and status:", error);
+            throw error;
+        }
+    },
+    addAttachments: async (attachments) => {
+        try {
+            for (const attachment of attachments) {
+                await db.query('INSERT INTO Attachments SET ?', attachment);
+            }
+        } catch (error) {
+            console.error("Error adding attachments:", error);
             throw error;
         }
     },

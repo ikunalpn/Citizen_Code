@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <h1 class="text-2xl font-semibold mb-4">Your Grievances</h1>
+
+    <a href="/citizen/create-grievance" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Create Grievance</a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% if (grievances && grievances.length > 0) { %>
+            <% grievances.forEach(grievance => { %>
+                <div class="bg-white rounded shadow p-4">
+                    <h2 class="text-lg font-semibold"><%= grievance.title %></h2>
+                    <p class="text-gray-700"><%= grievance.description %></p>
+                    <p class="mt-2">Status: <%= grievance.status %></p>
+                    <p class="mt-2">Comments:
+                        <% if (grievance.comments && grievance.comments.length > 0) { %>
+                            <% grievance.comments.forEach(comment => { %>
+                                <br> <%= comment %>
+                            <% }); %>
+                        <% } else { %>
+                            <br>No comments yet.
+                        <% } %>
+                    </p>
+                    <p class="mt-2">Attachments:
+                        <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                            <% grievance.attachments.forEach(attachment => { %>
+                                <br> <a href="<%= attachment.file_path %>" target="_blank"><%= attachment.file_name %></a>
+                            <% }); %>
+                        <% } else { %>
+                            <br>No attachments.
+                        <% } %>
+                    </p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No grievances found.</p>
+        <% } %>
+    </div>
+</body>
+</html>

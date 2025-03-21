@@ -7,3 +7,12 @@ CREATE TABLE Comments (
     FOREIGN KEY (grievance_id) REFERENCES Grievance(grievance_id) -- Assuming grievance_id is the PK in Grievance table
     -- Add a foreign key to addresser table if needed.
 );
+
+
+CREATE TABLE Attachments (
+    attach_id INT AUTO_INCREMENT PRIMARY KEY,
+    grievance_id INT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (grievance_id) REFERENCES Grievance(grievance_id) ON DELETE CASCADE
+);
