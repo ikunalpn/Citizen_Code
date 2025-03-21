@@ -102,6 +102,26 @@ const GrievanceController = {
             res.status(500).json({ message: 'Internal server error' });
         }
     },
+
+
+    updateCommentAndStatus: async (req, res) => {
+        try {
+            const grievanceId = req.params.grievanceId;
+            const { comment, status } = req.body;
+
+            if (!['resolved', 'in_progress'].includes(status)) {
+                return res.status(400).json({ message: 'Invalid status value' });
+            }
+
+            await Grievance.updateCommentAndStatus(grievanceId, comment, status);
+
+            res.json({ message: 'Grievance updated successfully' });
+        } catch (error) {
+            console.error("Error updating grievance comment and status:", error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
 };
 
 module.exports = GrievanceController;
