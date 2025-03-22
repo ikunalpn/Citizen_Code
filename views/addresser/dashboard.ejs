@@ -98,18 +98,24 @@
                                         </span>
                                     </p>
 
-                                    <% if (grievance.attachments && grievance.attachments.length> 0) { %>
-                                        <div class="mb-4">
-                                            <p class="text-lg font-semibold mb-2">Attachments:</p>
-                                            <div class="flex flex-wrap gap-2">
-                                                <% grievance.attachments.forEach(attachment=> { %>
-                                                    <img src="<%= attachment %>" alt="Attachment"
-                                                        class="max-w-full h-auto rounded-md shadow-sm"
-                                                        style="max-height: 200px;">
-                                                    <% }); %>
-                                            </div>
-                                        </div>
-                                        <% } %>
+                                    <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                                        <p class="mt-2 ">Attachments:
+                                        <ul>
+                                            <% grievance.attachments.forEach(attachment => { %>
+                                                <% if (attachment.toLowerCase().endsWith('.mp4') || attachment.toLowerCase().endsWith('.mkv')) { %>
+                                                    <li>
+                                                        <video width="320" height="240" controls class="py-2">
+                                                            <source src="<%= attachment %>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </li>
+                                                <% } else { %>
+                                                    <li><img class="py-2" src="<%= attachment %>" alt="Attachment" style="max-width: 200px;"></li>
+                                                <% } %>
+                                            <% }); %>
+                                        </ul>
+                                        </p>
+                                    <% } %>
 
                                             <% if (grievance.comments && grievance.comments.length> 0) { %>
                                                 <div class="mb-4">
