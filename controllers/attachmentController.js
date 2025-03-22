@@ -1,4 +1,3 @@
-const AttachmentService = require('../services/attachmentService');
 const multer = require('multer');
 const path = require('path');
 
