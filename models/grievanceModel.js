@@ -60,7 +60,9 @@ const Grievance = {
     },
     delete: async (grievanceId) => {
         try {
-            await db.query(`DELETE FROM Grievance WHERE grievance_id = ?`, [grievanceId]); // Replace grievance_id with correct column name if needed
+            await db.query('DELETE FROM Comments WHERE grievance_id = ?', [grievanceId]);
+            await db.query(`DELETE FROM Grievance WHERE grievance_id = ?`, [grievanceId]); // Replace grievance_id with correct column name if needed\
+            
         } catch (error) {
             console.error("Error deleting grievance:", error);
             throw error;

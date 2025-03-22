@@ -1,7 +1,9 @@
 const Grievance = require('../models/grievanceModel');
 const fs = require('fs').promises;
 const path = require('path');
-const db =  require("../config/db")
+const db = require("../config/db");
+const flash = require('connect-flash');
+
 const GrievanceController = {
     create: async (req, res) => {
         try {
@@ -33,6 +35,7 @@ const GrievanceController = {
             }
 
             // res.status(201).json({ message: 'Grievance created successfully' });
+            req.flash('success', 'Grievance created successfully!');
             res.redirect('/citizen/dashboard');
         } catch (error) {
             console.error("Error creating grievance:", error);
@@ -164,7 +167,7 @@ const GrievanceController = {
                     await db.query('INSERT INTO Attachments (grievance_id, file_name, file_path) VALUES (?, ?, ?)', [grievanceId, file.originalname, filePath]);
                 }
             }
-
+            req.flash('success', 'Grievance updated successfully!');
             res.redirect('/citizen/dashboard');
         } catch (error) {
             console.error('Error updating grievance:', error);
@@ -187,6 +190,7 @@ const GrievanceController = {
             await Grievance.delete(grievanceId);
 
             // res.json({ message: 'Grievance deleted successfully' });
+            req.flash('success', 'Grievance deleted successfully!');
             res.redirect('/citizen/dashboard');
         } catch (error) {
             console.error("Error deleting grievance:", error);
@@ -220,6 +224,7 @@ const GrievanceController = {
             await Grievance.updateCommentAndStatus(grievanceId, comment, status);
 
             // res.json({ message: 'Grievance updated successfully' });
+            req.flash('success', 'Grievance updated successfully!');
             res.redirect('/addresser/dashboard');
         } catch (error) {
             console.error("Error updating grievance comment and status:", error);
