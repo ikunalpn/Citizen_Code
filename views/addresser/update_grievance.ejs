@@ -1,0 +1,27 @@
+Comments:
+                        <% if (grievance.comments && grievance.comments.length > 0) { %>
+                            <% grievance.comments.forEach(comment => { %>
+                                <br> <%= comment %>
+                            <% }); %>
+                        <% } else { %>
+                            <br>No comments yet.
+                        <% } %>
+                    </p>
+                    <p class="mt-2">Attachments:
+                        <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                            <% grievance.attachments.forEach(attachment => { %>
+                                <br> <a href="<%= attachment.file_path %>" target="_blank"><%= attachment.file_name %></a>
+                            <% }); %>
+                        <% } else { %>
+                            <br>No attachments.
+                        <% } %>
+                    </p>
+                    <a href="/addresser/update-grievance/<%= grievance.grievance_id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Update</a>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No grievances found.</p>
+        <% } %>
+    </div>
+</body>
+</html>

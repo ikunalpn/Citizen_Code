@@ -80,13 +80,14 @@ const GrievanceController = {
             const grievanceId = req.params.grievanceId;
             const citizenId = req.user.citizenId;
             const { title, description } = req.body;
-
+            console.log(req.body);
+            
             console.log("Grievance ID from request:", grievanceId);
             console.log("Citizen ID from token:", citizenId);
 
             const grievance = await Grievance.getById(grievanceId);
 
-            console.log("Grievance from database:", grievance);
+            // console.log("Grievance from database:", grievance);
 
             if (!grievance || grievance.citizen_id !== citizenId) {
                 return res.status(403).json({ message: 'Forbidden: Grievance does not belong to you' });
@@ -139,6 +140,17 @@ const GrievanceController = {
         } catch (error) {
             console.error("Error updating grievance comment and status:", error);
             res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
+    getGrievancesForUser: async (req, res) => {
+        try {
+            const citizenId = req.user.citizenId; // Get citizenId from JWT
+            const [rows] = await pool.query('SELECT * FROM Grievances WHERE citizen_id = ?', [citizenId]);
+            res.json(rows);
+        } catch (error) {
+            console.error('Error fetching grievances:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     },
 
