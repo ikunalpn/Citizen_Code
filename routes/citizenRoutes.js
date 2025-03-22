@@ -8,6 +8,10 @@ const authMiddleware = require("../middlewares/authMiddleware")
 router.get('/create', authMiddleware('citizen'), CitizenController.createGrievanceForm); // Update route
 router.post('/create', authMiddleware('citizen'), GrievanceController.create); // Update route
 
+
+router.get('/register', CitizenController.registerForm); // Display registration form
+router.post('/register', CitizenController.register); // Process registration
+
 router.post('/register', CitizenController.register);
 router.post('/login', CitizenController.login);
 router.get('/logout', CitizenController.logout);

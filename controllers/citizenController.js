@@ -6,6 +6,9 @@ const jwtSecret = require("../config/jwtSecret");
 const db = require('../config/db')
 const CitizenController = {
     // In citizenController.js
+    registerForm: (req, res) => {
+        res.render('citizen/register');
+    },
     register: async (req, res) => {
         try {
             console.log("Register request received:", req.body);
@@ -21,8 +24,8 @@ const CitizenController = {
             console.log("Token generated:", token);
 
             res.cookie("token", token);
-            res.status(201).json({ message: 'Citizen registered successfully', token: token });
-
+            // res.status(201).json({ message: 'Citizen registered successfully', token: token });
+            res.redirect('/citizen/login');
             console.log("Response sent successfully");
 
         } catch (error) {
