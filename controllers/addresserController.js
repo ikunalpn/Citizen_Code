@@ -94,7 +94,7 @@ const AddresserController = {
                 query += ' WHERE g.status = ?';
                 queryParams.push(statusFilter);
             }
-
+            query += ' ORDER BY g.grievance_id DESC';
             const [grievances] = await db.query(query, queryParams);
 
             // Process grievances with attachments and comments

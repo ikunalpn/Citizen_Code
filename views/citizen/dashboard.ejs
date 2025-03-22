@@ -7,13 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-4">
-    
+
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Welcome, <%= citizenName %></h1>
         <a href="/citizen/logout" class="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">Logout</a>
     </div>
 
     <a href="/citizen/create" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Create Grievance</a>
+
+    <form action="/citizen/dashboard" method="GET" class="mb-4">
+        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">Filter by Status:</label>
+        <select name="statusFilter" id="statusFilter" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-3">
+            <option value="">All</option>
+            <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="resolved" <%= statusFilter === 'resolved' ? 'selected' : '' %>>Resolved</option>
+            <option value="reopened" <%= statusFilter === 'reopened' ? 'selected' : '' %>>Reopened</option>
+            <option value="in_progress" <%= statusFilter === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+        </select>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Filter</button>
+    </form>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <% if (grievances && grievances.length > 0) { %>
@@ -54,7 +66,6 @@
                         </p>
                     <% } %>
                     <a href="/citizen/delete-grievance/<%= grievance.grievance_id %>" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Delete</a>
-
                     <a href="/citizen/updateGrievance/<%= grievance.grievance_id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Update</a>
                 </div>
             <% }); %>

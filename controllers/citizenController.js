@@ -79,20 +79,32 @@ const CitizenController = {
             console.log('req.user:', req.user);
             const citizenId = req.user.citizenId;
             const citizenName = req.user.name;
+            const statusFilter = req.query.statusFilter; // Get filter from query parameters
             console.log(req.user.name);
-            
-            const [grievances] = await db.query(`
+
+            let query = `
                 SELECT 
                     g.*, 
                     a.file_path 
                 FROM Grievance g
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
                 WHERE g.citizen_id = ?
-            `, [citizenId]);
-    
+            `;
+
+            const queryParams = [citizenId];
+
+            if (statusFilter && ['pending', 'resolved', 'reopened', 'in_progress'].includes(statusFilter)) {
+                query += ' AND g.status = ?';
+                queryParams.push(statusFilter);
+            }
+
+            query += ' ORDER BY g.grievance_id DESC'; // Order by grievance_id in descending order
+
+            const [grievances] = await db.query(query, queryParams);
+
             const grievancesWithAttachments = await Promise.all(grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
-    
+
                 if (existingGrievance) {
                     if (grievance.file_path) {
                         if (!existingGrievance.attachments) {
@@ -107,20 +119,21 @@ const CitizenController = {
                     }
                     acc.push(newGrievance);
                 }
-    
+
                 return acc;
             }, []).map(async grievance => {
                 // Fetch comments for each grievance
                 const [comments] = await db.query('SELECT * FROM Comments WHERE grievance_id = ?', [grievance.grievance_id]);
                 return { ...grievance, comments };
             }));
-    
-            res.render('citizen/dashboard', { grievances: grievancesWithAttachments, user: req.user, citizenName });
+
+            res.render('citizen/dashboard', { grievances: grievancesWithAttachments, user: req.user, citizenName, statusFilter }); // Pass statusFilter to the view
         } catch (error) {
             console.error('Error fetching grievances and comments:', error);
             res.status(500).send('Internal Server Error');
         }
     },
+
 
     createGrievanceForm: (req, res) => {
         // Render the form for creating a new grievance
