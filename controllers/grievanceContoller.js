@@ -32,7 +32,8 @@ const GrievanceController = {
                 await Grievance.addAttachments(attachments);
             }
 
-            res.status(201).json({ message: 'Grievance created successfully' });
+            // res.status(201).json({ message: 'Grievance created successfully' });
+            res.redirect('/citizen/dashboard');
         } catch (error) {
             console.error("Error creating grievance:", error);
             res.status(500).json({ message: 'Internal server error' });
@@ -117,7 +118,8 @@ const GrievanceController = {
 
             await Grievance.delete(grievanceId);
 
-            res.json({ message: 'Grievance deleted successfully' });
+            // res.json({ message: 'Grievance deleted successfully' });
+            res.redirect('/citizen/dashboard');
         } catch (error) {
             console.error("Error deleting grievance:", error);
             res.status(500).json({ message: 'Internal server error' });

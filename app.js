@@ -39,9 +39,11 @@ app.get('/citizen/login', (req, res) => {
     res.render('citizen/login');
 });
 app.get('/citizen/dashboard', authMiddleware(), CitizenController.dashboard);
+app.get('/citizen/delete-grievance/:grievanceId', authMiddleware(), GrievanceController.delete);
+app.get('/citizen/updateGrievance/:grievanceId', authMiddleware(), CitizenController.showUpdateForm);
 
 app.post('/citizen/login', CitizenController.login);
-
+app.post('/citizen/updateGrievance/:grievanceId', authMiddleware(), CitizenController.updateGrievance);
 
 // Addresser Login Routes
 app.get('/addresser/login', (req, res) => {
@@ -51,72 +53,43 @@ app.get('/addresser/login', (req, res) => {
 
 
 app.get('/citizen/create-grievance', authMiddleware(['citizen']), (req, res) => {
-    res.render('citizen/create-grievance');
+    res.render('citizen/create_grievance');
 });
+// app.post('/grievances/create', authMiddleware(), GrievanceController.create);
 
-app.post('/citizen/create-grievance', authMiddleware(['citizen']), upload.array('attachments', 5), async (req, res) => {
-    try {
-        const { title, description } = req.body;
-        const citizenId = req.user.citizenId;
+app.post('/citizen/create-grievance', authMiddleware(['citizen']), upload.array('attachments', 5), GrievanceController.create);
 
-        const grievanceId = await Grievance.create({
-            citizen_id: citizenId,
-            title,
-            description,
-            status: 'pending',
-        });
+// app.get('/citizen/update-grievance/:grievanceId', authMiddleware(['citizen']), async (req, res) => {
+//     try {
+//         const grievanceId = req.params.grievanceId;
+//         const citizenId = req.user.citizenId;
+//         const grievance = await Grievance.getById(grievanceId);
+//         if (!grievance || grievance.citizen_id !== citizenId) {
+//             return res.status(403).send('Forbidden');
+//         }
+//         res.render('citizen/update-grievance', { grievance: grievance });
+//     } catch (error) {
+//         console.error('Error fetching grievance for update:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
-        if (req.files && req.files.length > 0) {
-            const attachments = req.files.map(file => {
-                const newFilename = `<span class="math-inline">\{grievanceId\}\-</span>{file.originalname}`;
-                const newPath = path.join(__dirname, 'public/uploads', newFilename);
-                fs.renameSync(file.path, newPath);
-                return {
-                    grievance_id: grievanceId,
-                    file_name: file.originalname,
-                    file_path: `/uploads/${newFilename}`,
-                };
-            });
-            await Grievance.addAttachments(attachments);
-        }
-        res.redirect('/citizen/dashboard');
-    } catch (error) {
-        console.error('Error creating grievance:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.get('/citizen/update-grievance/:grievanceId', authMiddleware(['citizen']), async (req, res) => {
-    try {
-        const grievanceId = req.params.grievanceId;
-        const citizenId = req.user.citizenId;
-        const grievance = await Grievance.getById(grievanceId);
-        if (!grievance || grievance.citizen_id !== citizenId) {
-            return res.status(403).send('Forbidden');
-        }
-        res.render('citizen/update-grievance', { grievance: grievance });
-    } catch (error) {
-        console.error('Error fetching grievance for update:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/citizen/update-grievance/:grievanceId', authMiddleware(['citizen']), async (req, res) => {
-    try {
-        const grievanceId = req.params.grievanceId;
-        const citizenId = req.user.citizenId;
-        const { title, description } = req.body;
-        const grievance = await Grievance.getById(grievanceId);
-        if (!grievance || grievance.citizen_id !== citizenId) {
-            return res.status(403).send('Forbidden');
-        }
-        await Grievance.update(grievanceId, { title, description });
-        res.redirect('/citizen/dashboard');
-    } catch (error) {
-        console.error('Error updating grievance:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+// app.post('/citizen/update-grievance/:grievanceId', authMiddleware(['citizen']), async (req, res) => {
+//     try {
+//         const grievanceId = req.params.grievanceId;
+//         const citizenId = req.user.citizenId;
+//         const { title, description } = req.body;
+//         const grievance = await Grievance.getById(grievanceId);
+//         if (!grievance || grievance.citizen_id !== citizenId) {
+//             return res.status(403).send('Forbidden');
+//         }
+//         await Grievance.update(grievanceId, { title, description });
+//         res.redirect('/citizen/dashboard');
+//     } catch (error) {
+//         console.error('Error updating grievance:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 app.get('/citizen/delete-grievance/:grievanceId', authMiddleware(['citizen']), async (req, res) => {
     try {

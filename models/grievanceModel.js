@@ -23,33 +23,33 @@ const Grievance = {
     },
 
     
-    // getById: async (grievanceId) => {
-    //     try {
-    //         const [rows] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ?', [grievanceId]);
-    //         return rows[0]; // Return the first row (grievance) or undefined
-    //     } catch (error) {
-    //         console.error("Error getting grievance by ID:", error);
-    //         throw error;
-    //     }
-    // },
-    getById: async () => {
+    getById: async (grievanceId) => {
         try {
-            const [rows] = await db.query('SELECT *, status FROM Grievance');
-
-            for (const row of rows) {
-                const [comments] = await db.query('SELECT comment_text FROM Comments WHERE grievance_id = ?', [row.grievance_id]);
-                row.comments = comments.map(c => c.comment_text);
-
-                const [attachments] = await db.query('SELECT * FROM Attachments WHERE grievance_id = ?', [row.grievance_id]);
-                row.attachments = attachments;
-            }
-
-            return rows;
+            const [rows] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ?', [grievanceId]);
+            return rows[0]; // Return the first row (grievance) or undefined
         } catch (error) {
-            console.error("Error getting all grievances:", error);
+            console.error("Error getting grievance by ID:", error);
             throw error;
         }
     },
+    // getById: async () => {
+    //     try {
+    //         const [rows] = await db.query('SELECT *, status FROM Grievance');
+
+    //         for (const row of rows) {
+    //             const [comments] = await db.query('SELECT comment_text FROM Comments WHERE grievance_id = ?', [row.grievance_id]);
+    //             row.comments = comments.map(c => c.comment_text);
+
+    //             const [attachments] = await db.query('SELECT * FROM Attachments WHERE grievance_id = ?', [row.grievance_id]);
+    //             row.attachments = attachments;
+    //         }
+
+    //         return rows;
+    //     } catch (error) {
+    //         console.error("Error getting all grievances:", error);
+    //         throw error;
+    //     }
+    // },
     update: async (grievanceId, updatedGrievance) => {
         try {
             await db.query(`UPDATE Grievance SET ? WHERE grievance_id = ?`, [updatedGrievance, grievanceId]); // Replace grievance_id if your column name is different
