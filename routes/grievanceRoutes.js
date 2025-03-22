@@ -14,8 +14,8 @@ router.delete('/citizen/:grievanceId', authMiddleware(['citizen']), GrievanceCon
 
 // Addresser Routes
 router.get('/addresser/all', authMiddleware(['addresser']), GrievanceController.getAll); // Get all grievances for admin
-router.put('/addresser/:grievanceId/update', authMiddleware(['addresser']), GrievanceController.updateCommentAndStatus);
-
+// router.put('/addresser/:grievanceId/update', authMiddleware(['addresser']), GrievanceController.updateCommentAndStatus);
+router.post('/addresser/:grievanceId/update', GrievanceController.updateCommentAndStatus);
 router.get('/addresser/:grievanceId', authMiddleware(['addresser']), GrievanceController.getById);
 // router.delete('/addresser/:grievanceId', authMiddleware(['addresser']), GrievanceController.delete);
 

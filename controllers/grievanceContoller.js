@@ -195,6 +195,19 @@ const GrievanceController = {
     },
 
 
+    // updateCommentAndStatus: async (grievanceId, comment, status) => {
+    //     try {
+    //         const [result] = await db.query(
+    //             'UPDATE Grievance SET comment = ?, status = ? WHERE grievance_id = ?',
+    //             [comment, status, grievanceId]
+    //         );
+    //         return result;
+    //     } catch (error) {
+    //         console.error('Error updating grievance comment and status:', error);
+    //         throw error; // Rethrow the error to be caught in the controller
+    //     }
+    // },
+
     updateCommentAndStatus: async (req, res) => {
         try {
             const grievanceId = req.params.grievanceId;
@@ -206,12 +219,14 @@ const GrievanceController = {
 
             await Grievance.updateCommentAndStatus(grievanceId, comment, status);
 
-            res.json({ message: 'Grievance updated successfully' });
+            // res.json({ message: 'Grievance updated successfully' });
+            res.redirect('/addresser/dashboard');
         } catch (error) {
             console.error("Error updating grievance comment and status:", error);
             res.status(500).json({ message: 'Internal server error' });
         }
     },
+
 
     getGrievancesForUser: async (req, res) => {
         try {
@@ -224,6 +239,18 @@ const GrievanceController = {
         }
     },
 
+    getCommentsByGrievanceId: async (grievanceId) => {
+        try {
+            const [rows] = await db.query(
+                'SELECT * FROM Comments WHERE grievance_id = ?',
+                [grievanceId]
+            );
+            return rows;
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            throw error;
+        }
+    },
 };
 
 module.exports = GrievanceController;

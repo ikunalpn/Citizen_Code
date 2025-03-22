@@ -7,7 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-4">
-    <h1 class="text-2xl font-semibold mb-4">All Grievances</h1>
+
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-semibold">Addresser Dashboard</h1>
+        <a href="/addresser/logout" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Logout</a>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <% if (grievances && grievances.length > 0) { %>
@@ -16,31 +20,51 @@
                     <h2 class="text-lg font-semibold"><%= grievance.title %></h2>
                     <p class="text-gray-700"><%= grievance.description %></p>
                     <p class="mt-2">Status: <%= grievance.status %></p>
-                    <p class="mt-2">
-                        Comments:
-                        <% if (grievance.comments && grievance.comments.length > 0) { %>
-                            <% grievance.comments.forEach(comment => { %>
-                                <br> <%= comment %>
-                            <% }); %>
-                        <% } else { %>
-                            <br>No comments yet.
-                        <% } %>
-                    </p>
-                    <p class="mt-2">Attachments:
-                        <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                    <p class="mt-2">Grievance ID: <%= grievance.grievance_id %></p>
+
+                    <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                        <p class="mt-2">Attachments:</p>
+                        <ul>
                             <% grievance.attachments.forEach(attachment => { %>
-                                <br> <a href="<%= attachment.file_path %>" target="_blank"><%= attachment.file_name %></a>
+                                <li>
+                                    <img src="<%= attachment %>" alt="Attachment" style="max-width: 100px;">
+                                </li>
                             <% }); %>
-                        <% } else { %>
-                            <br>No attachments.
-                        <% } %>
-                    </p>
-                    <a href="/addresser/update-grievance/<%= grievance.grievance_id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Update</a>
+                        </ul>
+                    <% } %>
+
+                    <% if (grievance.comments && grievance.comments.length > 0) { %>
+                        <p class="mt-2">Previous Comments:</p>
+                        <ul>
+                            <% grievance.comments.forEach(comment => { %>
+                                <li>
+                                    <%= comment.comment_text %> (at <%= comment.created_at %>)
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } %>
+
+                    <div class="mt-4">
+                        <form action="/grievance/addresser/<%= grievance.grievance_id %>/update" method="POST">
+                            <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Update Status:</label>
+                            <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="resolved" <%= grievance.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                                <option value="in_progress" <%= grievance.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                            </select>
+
+                            <label for="comment" class="block text-gray-700 text-sm font-bold mt-2 mb-2">Add Comment:</label>
+                            <textarea name="comment" id="comment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= grievance.comment || '' %></textarea>
+
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Update</button>
+                        </form>
+                    </div>
+
                 </div>
             <% }); %>
         <% } else { %>
             <p>No grievances found.</p>
         <% } %>
     </div>
+
 </body>
 </html>

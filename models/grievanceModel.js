@@ -97,13 +97,45 @@ const Grievance = {
 
     
 
+    // updateCommentAndStatus: async (grievanceId, comment, status) => {
+    //     try {
+    //         await db.query('UPDATE Grievance SET status = ? WHERE grievance_id = ?', [status, grievanceId]);
+    //         if (comment) {
+    //             await db.query('INSERT INTO Comments (grievance_id, comment_text) VALUES (?, ?)', [grievanceId, comment]);
+    //         }
+
+    //     } catch (error) {
+    //         console.error("Error updating grievance comment and status:", error);
+    //         throw error;
+    //     }
+    // },
+    // updateCommentAndStatus: async (grievanceId, comment, status, addresserId = null) => {
+    //     try {
+    //         await db.query(
+    //             'UPDATE Grievances SET status = ? WHERE grievance_id = ?',
+    //             [status, grievanceId]
+    //         );
+
+    //         if (comment) {
+    //             await db.query(
+    //                 'INSERT INTO comments (grievance_id, addresser_id, comment_text) VALUES (?, ?, ?)',
+    //                 [grievanceId, addresserId, comment]
+    //             );
+    //         }
+
+    //         return; // Indicate success
+    //     } catch (error) {
+    //         console.error('Error updating grievance status and adding comment:', error);
+    //         throw error; // Rethrow to be caught in the controller
+    //     }
+    // },
+
     updateCommentAndStatus: async (grievanceId, comment, status) => {
         try {
             await db.query('UPDATE Grievance SET status = ? WHERE grievance_id = ?', [status, grievanceId]);
             if (comment) {
                 await db.query('INSERT INTO Comments (grievance_id, comment_text) VALUES (?, ?)', [grievanceId, comment]);
             }
-
         } catch (error) {
             console.error("Error updating grievance comment and status:", error);
             throw error;

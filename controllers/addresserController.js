@@ -3,7 +3,9 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/db');
 const bcrypt = require('bcrypt');
 const {generateToken} = require('../utils/generateToken');
-const jwtSecret = require("../config/jwtSecret")
+const jwtSecret = require("../config/jwtSecret");
+const db = require("../config/db")
+const Grievance = require('./grievanceContoller');
 const AddresserController = {
     register: async (req, res) => {
         try {
@@ -58,13 +60,70 @@ const AddresserController = {
                 jwtSecret.jwtSecret // Optional: Set expiration time
             );
             res.cookie("token", token);
-            res.json({ token });
+            // res.json({ token });
+            res.redirect('/addresser/dashboard');
 
         } catch (error) {
             console.error("Error during addresser login", error);
             res.status(500).json({ error: error.message });
         }
     },
+
+
+    dashboard: async (req, res) => {
+        try {
+            const [grievances] = await db.query(`
+                SELECT 
+                    g.*, 
+                    a.file_path 
+                FROM Grievance g
+                LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
+            `);
+
+            const grievancesWithAttachments = grievances.reduce((acc, grievance) => {
+                const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
+
+                if (existingGrievance) {
+                    if (grievance.file_path) {
+                        if (!existingGrievance.attachments) {
+                            existingGrievance.attachments = []; // Corrected line
+                        }
+                        existingGrievance.attachments.push(grievance.file_path);
+                    }
+                } else {
+                    const newGrievance = { ...grievance };
+                    if (grievance.file_path) {
+                        newGrievance.attachments = [grievance.file_path];
+                    }
+                    acc.push(newGrievance);
+                }
+
+                return acc;
+            }, []);
+
+            res.render('addresser/dashboard', { grievances: grievancesWithAttachments });
+        } catch (error) {
+            console.error('Error fetching grievances:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
+
+    updateStatus: async (req, res) => {
+        try {
+            const grievanceId = req.params.grievanceId;
+            const { status, comment } = req.body;
+            const addresserId = req.user.addresserId; // Assuming you've stored addresserId in req.user
+
+            await Grievance.updateCommentAndStatus(grievanceId, comment, status, addresserId);
+
+            res.redirect('/addresser/dashboard');
+        } catch (error) {
+            console.error('Error updating grievance status:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
+
+    
     //... other methods
 };
 

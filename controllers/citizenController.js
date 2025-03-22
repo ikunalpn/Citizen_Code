@@ -74,7 +74,7 @@ const CitizenController = {
     dashboard: async (req, res) => {
         try {
             const citizenId = req.user.citizenId;
-
+    
             const [grievances] = await db.query(`
                 SELECT 
                     g.*, 
@@ -83,10 +83,10 @@ const CitizenController = {
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
                 WHERE g.citizen_id = ?
             `, [citizenId]);
-
-            const grievancesWithAttachments = grievances.reduce((acc, grievance) => {
+    
+            const grievancesWithAttachments = await Promise.all(grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
-
+    
                 if (existingGrievance) {
                     if (grievance.file_path) {
                         if (!existingGrievance.attachments) {
@@ -101,13 +101,17 @@ const CitizenController = {
                     }
                     acc.push(newGrievance);
                 }
-
+    
                 return acc;
-            }, []);
-
+            }, []).map(async grievance => {
+                // Fetch comments for each grievance
+                const [comments] = await db.query('SELECT * FROM Comments WHERE grievance_id = ?', [grievance.grievance_id]);
+                return { ...grievance, comments };
+            }));
+    
             res.render('citizen/dashboard', { grievances: grievancesWithAttachments, user: req.user });
         } catch (error) {
-            console.error('Error fetching grievances:', error);
+            console.error('Error fetching grievances and comments:', error);
             res.status(500).send('Internal Server Error');
         }
     },
