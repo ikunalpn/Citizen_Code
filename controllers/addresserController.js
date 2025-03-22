@@ -73,9 +73,9 @@ const AddresserController = {
     dashboard: async (req, res) => {
         try {
             const addresserName = req.user.name;
+            const statusFilter = req.query.statusFilter;
 
-            // Fetch grievances with citizen and attachment details
-            const [grievances] = await db.query(`
+            let query = `
                 SELECT 
                     g.*, 
                     c.name AS citizen_name,
@@ -86,7 +86,16 @@ const AddresserController = {
                 FROM Grievance g
                 LEFT JOIN Citizen c ON g.citizen_id = c.citizen_id
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
-            `);
+            `;
+
+            const queryParams = [];
+
+            if (statusFilter) {
+                query += ' WHERE g.status = ?';
+                queryParams.push(statusFilter);
+            }
+
+            const [grievances] = await db.query(query, queryParams);
 
             // Process grievances with attachments and comments
             const grievancesWithDetails = await Promise.all(grievances.reduce((acc, grievance) => {
@@ -109,12 +118,11 @@ const AddresserController = {
 
                 return acc;
             }, []).map(async grievance => {
-                // Fetch comments for each grievance
                 const [comments] = await db.query('SELECT * FROM Comments WHERE grievance_id = ?', [grievance.grievance_id]);
                 return { ...grievance, comments };
             }));
 
-            res.render('addresser/dashboard', { grievances: grievancesWithDetails, addresserName });
+            res.render('addresser/dashboard', { grievances: grievancesWithDetails, addresserName, statusFilter });
         } catch (error) {
             console.error('Error fetching grievances:', error);
             res.status(500).send('Internal Server Error');

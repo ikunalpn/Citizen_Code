@@ -28,7 +28,16 @@
                                 <p class="text-lg font-semibold mb-2">Comments:</p>
                                 <ul class="list-disc list-inside">
                                     <% grievance.comments.forEach(comment => { %>
-                                        <li class="text-gray-700"><%= comment.comment_text %></li>
+                                        <li class="text-gray-700">
+                                            <%= comment.comment_text %>
+                                            <span class="text-xs text-gray-500">
+                                                <%
+                                                    const date = new Date(comment.created_at);
+                                                    const formattedDate = date.toLocaleString();
+                                                %>
+                                                ( <%= formattedDate %> )
+                                            </span>
+                                        </li>
                                     <% }); %>
                                 </ul>
                             </div>

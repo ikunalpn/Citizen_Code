@@ -13,6 +13,18 @@
         <a href="/addresser/logout" class="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">Logout</a>
     </div>
 
+    <form action="/addresser/dashboard" method="GET" class="mb-4">
+        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">Filter by Status:</label>
+        <select name="statusFilter" id="statusFilter" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-3">
+            <option value="">All</option>
+            <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="in_progress" <%= statusFilter === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+            <option value="resolved" <%= statusFilter === 'resolved' ? 'selected' : '' %>>Resolved</option>
+            <option value="reopened" <%= statusFilter === 'reopened' ? 'selected' : '' %>>Reopened</option>
+        </select>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Filter</button>
+    </form>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <% if (grievances && grievances.length > 0) { %>
             <% grievances.forEach(grievance => { %>
@@ -60,7 +72,16 @@
                             <p class="text-lg font-semibold mb-2">Previous Comments:</p>
                             <ul class="list-disc list-inside">
                                 <% grievance.comments.forEach(comment => { %>
-                                    <li class="text-gray-700"><%= comment.comment_text %></li>
+                                    <li class="text-gray-700">
+                                        <%= comment.comment_text %>
+                                        <span class="text-xs text-gray-500">
+                                            <%
+                                                const date = new Date(comment.created_at);
+                                                const formattedDate = date.toLocaleString();
+                                            %>
+                                            ( <%= formattedDate %> )
+                                        </span>
+                                    </li>
                                 <% }); %>
                             </ul>
                         </div>
@@ -75,7 +96,7 @@
                             </select>
 
                             <label for="comment" class="block text-sm font-semibold text-gray-700 mb-2">Add Comment:</label>
-                            <textarea name="comment" id="comment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-3"><%= grievance.comment || '' %></textarea>
+                            <textarea name="comment" id="comment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray700 leading-tight focus:outline-none focus:shadow-outline mb-3"><%= grievance.comment || '' %></textarea>
 
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Update</button>
                         </form>
