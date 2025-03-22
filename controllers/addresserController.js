@@ -79,7 +79,7 @@ const AddresserController = {
                 FROM Grievance g
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
             `);
-
+            const addresserName = req.user.name;
             const grievancesWithAttachments = await Promise.all(grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
     
@@ -105,7 +105,7 @@ const AddresserController = {
                 return { ...grievance, comments };
             }));
     
-            res.render('addresser/dashboard', { grievances: grievancesWithAttachments });
+            res.render('addresser/dashboard', { grievances: grievancesWithAttachments , addresserName});
         } catch (error) {
             console.error('Error fetching grievances and comments:', error);
             res.status(500).send('Internal Server Error');

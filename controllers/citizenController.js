@@ -73,8 +73,11 @@ const CitizenController = {
     
     dashboard: async (req, res) => {
         try {
+            console.log('req.user:', req.user);
             const citizenId = req.user.citizenId;
-    
+            const citizenName = req.user.name;
+            console.log(req.user.name);
+            
             const [grievances] = await db.query(`
                 SELECT 
                     g.*, 
@@ -109,7 +112,7 @@ const CitizenController = {
                 return { ...grievance, comments };
             }));
     
-            res.render('citizen/dashboard', { grievances: grievancesWithAttachments, user: req.user });
+            res.render('citizen/dashboard', { grievances: grievancesWithAttachments, user: req.user, citizenName });
         } catch (error) {
             console.error('Error fetching grievances and comments:', error);
             res.status(500).send('Internal Server Error');
