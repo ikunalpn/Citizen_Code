@@ -72,21 +72,26 @@ const AddresserController = {
 
     dashboard: async (req, res) => {
         try {
+            const addresserName = req.user.name;
+
+            // Fetch grievances with citizen and attachment details
             const [grievances] = await db.query(`
                 SELECT 
                     g.*, 
                     c.name AS citizen_name,
-                    a.file_path 
+                    c.email AS citizen_email,
+                    c.contact_no AS citizen_contact_no,
+                    c.locality AS citizen_locality,
+                    a.file_path
                 FROM Grievance g
                 LEFT JOIN Citizen c ON g.citizen_id = c.citizen_id
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
             `);
-    
-            const addresserName = req.user.name;
-    
-            const grievancesWithAttachments = await Promise.all(grievances.reduce((acc, grievance) => {
+
+            // Process grievances with attachments and comments
+            const grievancesWithDetails = await Promise.all(grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
-    
+
                 if (existingGrievance) {
                     if (grievance.file_path) {
                         if (!existingGrievance.attachments) {
@@ -101,21 +106,20 @@ const AddresserController = {
                     }
                     acc.push(newGrievance);
                 }
-    
+
                 return acc;
             }, []).map(async grievance => {
-                const comments = await Grievance.getCommentsByGrievanceId(grievance.grievance_id);
-                console.log(`Grievance ID ${grievance.grievance_id} comments:`, comments);
+                // Fetch comments for each grievance
+                const [comments] = await db.query('SELECT * FROM Comments WHERE grievance_id = ?', [grievance.grievance_id]);
                 return { ...grievance, comments };
             }));
-    
-            res.render('addresser/dashboard', { grievances: grievancesWithAttachments, addresserName });
+
+            res.render('addresser/dashboard', { grievances: grievancesWithDetails, addresserName });
         } catch (error) {
-            console.error('Error fetching grievances and comments:', error);
+            console.error('Error fetching grievances:', error);
             res.status(500).send('Internal Server Error');
         }
     },
-
     updateStatus: async (req, res) => {
         try {
             const grievanceId = req.params.grievanceId;
