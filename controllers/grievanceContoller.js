@@ -1,7 +1,7 @@
 const Grievance = require('../models/grievanceModel');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-
+const db =  require("../config/db")
 const GrievanceController = {
     create: async (req, res) => {
         try {
@@ -20,7 +20,7 @@ const GrievanceController = {
                     const newFilename = `${grievanceId}-${file.originalname}`;
                     const newPath = path.join(__dirname, '../public/uploads', newFilename);
 
-                    fs.renameSync(file.path, newPath);
+                    fs.rename(file.path, newPath);
 
                     return {
                         grievance_id: grievanceId,
@@ -103,6 +103,74 @@ const GrievanceController = {
         }
     },
 
+    showUpdateForm: async (req, res) => {
+        try {
+            const grievanceId = req.params.grievanceId;
+            const citizenId = req.user.citizenId;
+
+            const [grievance] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ? AND citizen_id = ?', [grievanceId, citizenId]);
+
+            if (grievance.length === 0) {
+                return res.status(403).send('Unauthorized'); // Forbidden if grievance doesn't belong to citizen
+            }
+
+            res.render('citizen/update_grievance', { grievance: grievance[0] });
+        } catch (error) {
+            console.error('Error showing update form:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
+    updateGrievance: async (req, res) => {
+        try {
+            const grievanceId = req.params.grievanceId;
+            const citizenId = req.user.citizenId;
+            const { title, description, status, deleteAttachments } = req.body;
+            const attachments = req.files;
+
+            const [grievance] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ? AND citizen_id = ?', [grievanceId, citizenId]);
+
+            if (grievance.length === 0) {
+                return res.status(403).send('Unauthorized'); // Forbidden if grievance doesn't belong to citizen
+            }
+
+            await db.query('UPDATE Grievance SET title = ?, description = ?, status = ? WHERE grievance_id = ?', [title, description, status, grievanceId]);
+
+            if (deleteAttachments) {
+                const deleteIndexes = Array.isArray(deleteAttachments) ? deleteAttachments : [deleteAttachments];
+                for (const index of deleteIndexes) {
+                    const [attachmentToDelete] = await db.query('SELECT file_path FROM Attachments WHERE grievance_id = ? LIMIT 1 OFFSET ?', [grievanceId, index]);
+                    if (attachmentToDelete.length > 0) {
+                        const filePath = attachmentToDelete[0].file_path;
+                        try {
+                            await fs.unlink(path.join(__dirname, 'public', filePath)); // Delete file from server
+                            await db.query('DELETE FROM Attachments WHERE file_path = ?', [filePath]); // Delete from database
+                        } catch (error) {
+                            console.error('Error deleting attachment:', error);
+                        }
+                    }
+                }
+            }
+
+            // Handle new attachments
+            if (attachments && attachments.length > 0) {
+                for (const file of attachments) {
+                    const newFilename = `${grievanceId}-${file.originalname}`;
+                    const newPath = path.join(__dirname, '../public/uploads', newFilename);
+
+                    // Move the uploaded file to the new path
+                    await fs.rename(file.path, newPath);
+
+                    const filePath = `/uploads/${newFilename}`; // Relative to public/uploads
+                    await db.query('INSERT INTO Attachments (grievance_id, file_name, file_path) VALUES (?, ?, ?)', [grievanceId, file.originalname, filePath]);
+                }
+            }
+
+            res.redirect('/citizen/dashboard');
+        } catch (error) {
+            console.error('Error updating grievance:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
     delete: async (req, res) => {
         try {
             const grievanceId = req.params.grievanceId;

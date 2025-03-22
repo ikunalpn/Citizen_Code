@@ -84,7 +84,6 @@ const CitizenController = {
                 WHERE g.citizen_id = ?
             `, [citizenId]);
 
-            // Group attachments by grievance_id
             const grievancesWithAttachments = grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
 
@@ -114,45 +113,9 @@ const CitizenController = {
     },
 
 
+    
 
-    showUpdateForm: async (req, res) => {
-        try {
-            const grievanceId = req.params.grievanceId;
-            const citizenId = req.user.citizenId;
-
-            const [grievance] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ? AND citizen_id = ?', [grievanceId, citizenId]);
-
-            if (grievance.length === 0) {
-                return res.status(403).send('Unauthorized'); // Forbidden if grievance doesn't belong to citizen
-            }
-
-            res.render('citizen/update_grievance', { grievance: grievance[0] });
-        } catch (error) {
-            console.error('Error showing update form:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    },
-
-    updateGrievance: async (req, res) => {
-        try {
-            const grievanceId = req.params.grievanceId;
-            const citizenId = req.user.citizenId;
-            const { title, description, status } = req.body;
-
-            const [grievance] = await db.query('SELECT * FROM Grievance WHERE grievance_id = ? AND citizen_id = ?', [grievanceId, citizenId]);
-
-            if (grievance.length === 0) {
-                return res.status(403).send('Unauthorized'); // Forbidden if grievance doesn't belong to citizen
-            }
-
-            await db.query('UPDATE Grievance SET title = ?, description = ?, status = ? WHERE grievance_id = ?', [title, description, status, grievanceId]);
-
-            res.redirect('/citizen/dashboard');
-        } catch (error) {
-            console.error('Error updating grievance:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    },
+    
 
 
     // ... other controller methods

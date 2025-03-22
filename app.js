@@ -11,6 +11,16 @@ const GrievanceController = require('./controllers/grievanceContoller');
 const CitizenController = require('./controllers/citizenController');
 const multer = require('multer');
 const fs = require('fs');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, 'public/uploads'));
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname); // Extract extension
+        cb(null, Date.now() + '-' + path.basename(file.originalname, ext) + ext); // Preserve extension
+    },
+});
+
 const upload = multer({ dest: path.join(__dirname, 'public/uploads/') });
 const cookieParser = require('cookie-parser');
 
@@ -40,10 +50,10 @@ app.get('/citizen/login', (req, res) => {
 });
 app.get('/citizen/dashboard', authMiddleware(), CitizenController.dashboard);
 app.get('/citizen/delete-grievance/:grievanceId', authMiddleware(), GrievanceController.delete);
-app.get('/citizen/updateGrievance/:grievanceId', authMiddleware(), CitizenController.showUpdateForm);
+app.get('/citizen/updateGrievance/:grievanceId', authMiddleware(), GrievanceController.showUpdateForm);
 
 app.post('/citizen/login', CitizenController.login);
-app.post('/citizen/updateGrievance/:grievanceId', authMiddleware(), CitizenController.updateGrievance);
+app.post('/citizen/updateGrievance/:grievanceId', authMiddleware(),upload.array('attachments'), GrievanceController.updateGrievance);
 
 // Addresser Login Routes
 app.get('/addresser/login', (req, res) => {

@@ -9,16 +9,56 @@
 <body class="bg-gray-100 p-4">
     <h1 class="text-2xl font-semibold mb-4">Update Grievance</h1>
 
-    <form action="/citizen/updateGrievance/<%= grievance.grievance_id %>" method="POST" class="bg-white rounded shadow p-4">
+    <form action="/citizen/updateGrievance/<%= grievance.grievance_id %>" method="POST" enctype="multipart/form-data" class="bg-white rounded shadow p-4" onsubmit="return validateForm()">
         <div class="mb-4">
             <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title</label>
-            <input type="text" id="title" name="title" value="<%= grievance.title %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Title">
+            <input type="text" id="title" name="title" value="<%= grievance.title %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
         </div>
         <div class="mb-4">
             <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description</label>
-            <textarea id="description" name="description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Description"><%= grievance.description %></textarea>
+            <textarea id="description" name="description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= grievance.description %></textarea>
         </div>
+        <div class="mb-4">
+            <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+            <select id="status" name="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="pending" <%= grievance.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="in progress" <%= grievance.status === 'in progress' ? 'selected' : '' %>>In Progress</option>
+                <option value="resolved" <%= grievance.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="attachments" class="block text-gray-700 text-sm font-bold mb-2">New Attachments</label>
+            <input type="file" id="attachments" name="attachments" multiple class="border rounded p-2">
+        </div>
+
+        <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+            <div class="mb-4">
+                <p class="block text-gray-700 text-sm font-bold mb-2">Current Attachments:</p>
+                <ul>
+                    <% grievance.attachments.forEach((attachment, index) => { %>
+                        <li>
+                            <img src="<%= attachment %>" alt="Attachment" style="max-width: 100px;">
+                            <label>
+                                <input type="checkbox" name="deleteAttachments" value="<%= index %>"> Delete
+                            </label>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Update Grievance</button>
     </form>
+    <script>
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            if (!title) {
+                alert('Title is required.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>
