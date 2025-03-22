@@ -115,6 +115,11 @@ const CitizenController = {
             res.status(500).send('Internal Server Error');
         }
     },
+
+    createGrievanceForm: (req, res) => {
+        // Render the form for creating a new grievance
+        res.render('citizen/create_grievance'); // Assuming your EJS file is named createGrievance.ejs
+    },
     logout: (req, res) => {
         // Clear the token cookie
         res.clearCookie('token'); // Adjust cookie name if needed

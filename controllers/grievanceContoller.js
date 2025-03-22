@@ -7,7 +7,7 @@ const GrievanceController = {
         try {
             const { title, description } = req.body;
             const citizenId = req.user.citizenId;
-
+            console.log("Request Body:", req.body);
             const grievanceId = await Grievance.create({
                 citizen_id: citizenId,
                 title,

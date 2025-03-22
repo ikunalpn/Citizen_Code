@@ -7,49 +7,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-4">
-
+    
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Citizen Dashboard</h1>
         <a href="/citizen/logout" class="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">Logout</a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <a href="/citizen/create" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Create Grievance</a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <% if (grievances && grievances.length > 0) { %>
             <% grievances.forEach(grievance => { %>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-blue-700"><%= grievance.title %></h2>
-                    <p class="text-gray-700 mb-2"><%= grievance.description %></p>
-                    <p class="text-sm text-gray-600 mb-2">Status: <span class="font-medium"><%= grievance.status %></span></p>
-                    <p class="text-sm text-gray-600 mb-4">Grievance ID: <span class="font-medium"><%= grievance.grievance_id %></span></p>
-
-                    <% if (grievance.attachments && grievance.attachments.length > 0) { %>
-                        <div class="mb-4">
-                            <p class="text-lg font-semibold mb-2">Attachments:</p>
-                            <div class="flex flex-wrap gap-2">
-                                <% grievance.attachments.forEach(attachment => { %>
-                                    <img src="<%= attachment %>" alt="Attachment" class="max-w-full h-auto rounded-md shadow-sm" style="max-height: 200px;">
-                                <% }); %>
+                <div class="bg-white rounded shadow p-4">
+                    <h2 class="text-lg font-semibold"><%= grievance.title %></h2>
+                    <p class="text-gray-700"><%= grievance.description %></p>
+                    <p class="mt-2">Status: <%= grievance.status %></p>
+                    <p class="mt-2">
+                        <% if (grievance.comments && grievance.comments.length > 0) { %>
+                            <div class="mb-4">
+                                <p class="text-lg font-semibold mb-2">Comments:</p>
+                                <ul class="list-disc list-inside">
+                                    <% grievance.comments.forEach(comment => { %>
+                                        <li class="text-gray-700"><%= comment.comment_text %></li>
+                                    <% }); %>
+                                </ul>
                             </div>
-                        </div>
+                        <% } %>
+                    </p>
+                    
+                    <% if (grievance.attachments && grievance.attachments.length > 0) { %>
+                        <p class="mt-2">Attachments:
+                        <ul>
+                            <% grievance.attachments.forEach(attachment => { %>
+                                <li><img src="<%= attachment %>" alt="Attachment" style="max-width: 200px;"></li>
+                            <% }); %>
+                        </ul>
+                        </p>
                     <% } %>
+                    <a href="/citizen/delete-grievance/<%= grievance.grievance_id %>" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Delete</a>
 
-                    <% if (grievance.comments && grievance.comments.length > 0) { %>
-                        <div class="mb-4">
-                            <p class="text-lg font-semibold mb-2">Comments:</p>
-                            <ul class="list-disc list-inside">
-                                <% grievance.comments.forEach(comment => { %>
-                                    <li class="text-gray-700"><%= comment.comment_text %></li>
-                                <% }); %>
-                            </ul>
-                        </div>
-                    <% } %>
-
+                    <a href="/citizen/updateGrievance/<%= grievance.grievance_id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Update</a>
                 </div>
             <% }); %>
         <% } else { %>
-            <p class="text-lg text-gray-700">No grievances found.</p>
+            <p>No grievances found.</p>
         <% } %>
     </div>
-
 </body>
 </html>
