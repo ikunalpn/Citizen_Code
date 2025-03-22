@@ -5,6 +5,7 @@ const CitizenController = require('../controllers/citizenController');
 
 router.post('/register', CitizenController.register);
 router.post('/login', CitizenController.login);
+router.get('/logout', CitizenController.logout);
 // ... other routes
 
 module.exports = router;

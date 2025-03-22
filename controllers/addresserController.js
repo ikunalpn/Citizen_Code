@@ -80,13 +80,13 @@ const AddresserController = {
                 LEFT JOIN Attachments a ON g.grievance_id = a.grievance_id
             `);
 
-            const grievancesWithAttachments = grievances.reduce((acc, grievance) => {
+            const grievancesWithAttachments = await Promise.all(grievances.reduce((acc, grievance) => {
                 const existingGrievance = acc.find(g => g.grievance_id === grievance.grievance_id);
-
+    
                 if (existingGrievance) {
                     if (grievance.file_path) {
                         if (!existingGrievance.attachments) {
-                            existingGrievance.attachments = []; // Corrected line
+                            existingGrievance.attachments = [];
                         }
                         existingGrievance.attachments.push(grievance.file_path);
                     }
@@ -97,13 +97,17 @@ const AddresserController = {
                     }
                     acc.push(newGrievance);
                 }
-
+    
                 return acc;
-            }, []);
-
+            }, []).map(async grievance => {
+                const comments = await Grievance.getCommentsByGrievanceId(grievance.grievance_id);
+                console.log(`Grievance ID ${grievance.grievance_id} comments:`, comments); // Add this line
+                return { ...grievance, comments };
+            }));
+    
             res.render('addresser/dashboard', { grievances: grievancesWithAttachments });
         } catch (error) {
-            console.error('Error fetching grievances:', error);
+            console.error('Error fetching grievances and comments:', error);
             res.status(500).send('Internal Server Error');
         }
     },
@@ -123,6 +127,12 @@ const AddresserController = {
         }
     },
 
+    logout: (req, res) => {
+        // Clear the token cookie
+        res.clearCookie('token'); // Adjust cookie name if needed
+
+        res.redirect('/addresser/login'); // Redirect to login page
+    },
     
     //... other methods
 };

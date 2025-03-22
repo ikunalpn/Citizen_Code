@@ -115,12 +115,13 @@ const CitizenController = {
             res.status(500).send('Internal Server Error');
         }
     },
+    logout: (req, res) => {
+        // Clear the token cookie
+        res.clearCookie('token'); // Adjust cookie name if needed
+        // Or: res.clearCookie('citizenToken'); // if you named it something else
 
-
-    
-
-    
-
+        res.redirect('/citizen/login'); // Redirect to citizen login page
+    },
 
     // ... other controller methods
 };

@@ -8,61 +8,61 @@
 </head>
 <body class="bg-gray-100 p-4">
 
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-semibold">Addresser Dashboard</h1>
-        <a href="/addresser/logout" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Logout</a>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Addresser Dashboard</h1>
+        <a href="/addresser/logout" class="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">Logout</a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <% if (grievances && grievances.length > 0) { %>
             <% grievances.forEach(grievance => { %>
-                <div class="bg-white rounded shadow p-4">
-                    <h2 class="text-lg font-semibold"><%= grievance.title %></h2>
-                    <p class="text-gray-700"><%= grievance.description %></p>
-                    <p class="mt-2">Status: <%= grievance.status %></p>
-                    <p class="mt-2">Grievance ID: <%= grievance.grievance_id %></p>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-700"><%= grievance.title %></h2>
+                    <p class="text-gray-700 mb-2"><%= grievance.description %></p>
+                    <p class="text-sm text-gray-600 mb-2">Status: <span class="font-medium"><%= grievance.status %></span></p>
+                    <p class="text-sm text-gray-600 mb-4">Grievance ID: <span class="font-medium"><%= grievance.grievance_id %></span></p>
 
                     <% if (grievance.attachments && grievance.attachments.length > 0) { %>
-                        <p class="mt-2">Attachments:</p>
-                        <ul>
-                            <% grievance.attachments.forEach(attachment => { %>
-                                <li>
-                                    <img src="<%= attachment %>" alt="Attachment" style="max-width: 100px;">
-                                </li>
-                            <% }); %>
-                        </ul>
+                        <div class="mb-4">
+                            <p class="text-lg font-semibold mb-2">Attachments:</p>
+                            <div class="flex flex-wrap gap-2">
+                                <% grievance.attachments.forEach(attachment => { %>
+                                    <img src="<%= attachment %>" alt="Attachment" class="max-w-full h-auto rounded-md shadow-sm" style="max-height: 200px;">
+                                <% }); %>
+                            </div>
+                        </div>
                     <% } %>
 
                     <% if (grievance.comments && grievance.comments.length > 0) { %>
-                        <p class="mt-2">Previous Comments:</p>
-                        <ul>
-                            <% grievance.comments.forEach(comment => { %>
-                                <li>
-                                    <%= comment.comment_text %> (at <%= comment.created_at %>)
-                                </li>
-                            <% }); %>
-                        </ul>
+                        <div class="mb-4">
+                            <p class="text-lg font-semibold mb-2">Previous Comments:</p>
+                            <ul class="list-disc list-inside">
+                                <% grievance.comments.forEach(comment => { %>
+                                    <li class="text-gray-700"><%= comment.comment_text %></li>
+                                <% }); %>
+                            </ul>
+                        </div>
                     <% } %>
 
                     <div class="mt-4">
                         <form action="/grievance/addresser/<%= grievance.grievance_id %>/update" method="POST">
-                            <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Update Status:</label>
-                            <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Update Status:</label>
+                            <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-3">
                                 <option value="resolved" <%= grievance.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
                                 <option value="in_progress" <%= grievance.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
                             </select>
 
-                            <label for="comment" class="block text-gray-700 text-sm font-bold mt-2 mb-2">Add Comment:</label>
-                            <textarea name="comment" id="comment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= grievance.comment || '' %></textarea>
+                            <label for="comment" class="block text-sm font-semibold text-gray-700 mb-2">Add Comment:</label>
+                            <textarea name="comment" id="comment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-3"><%= grievance.comment || '' %></textarea>
 
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Update</button>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Update</button>
                         </form>
                     </div>
 
                 </div>
             <% }); %>
         <% } else { %>
-            <p>No grievances found.</p>
+            <p class="text-lg text-gray-700">No grievances found.</p>
         <% } %>
     </div>
 
